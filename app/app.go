@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
@@ -19,12 +18,4 @@ func Start() {
 	//starting server
 	log.Fatal(http.ListenAndServe("localhost:8080", router))
 
-}
-func getCustomer(w http.ResponseWriter, r *http.Request) {
-	v := mux.Vars(r)
-	fmt.Println(v["customer_id"])
-	fmt.Fprint(w, v["customer_id"])
-}
-func createCustomer(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Created customer successfully")
 }
