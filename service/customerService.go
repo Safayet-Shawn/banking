@@ -1,20 +1,23 @@
 package service
 
-import "github.com/Safayet-Shawn/banking/domain"
+import (
+	"github.com/Safayet-Shawn/banking/domain"
+	"github.com/Safayet-Shawn/banking/errs"
+)
 
 // primary port[all port are interfaces]
 type CustomerService interface {
-	GetAllCustomer() ([]domain.Customer, error)
-	GetCustomer(string) (*domain.Customer, error)
+	GetAllCustomer() ([]domain.Customer, *errs.Apperror)
+	GetCustomer(string) (*domain.Customer, *errs.Apperror)
 }
 type DefaultCustomerService struct {
 	repo domain.CustomerRepository
 }
 
-func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, error) {
+func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, *errs.Apperror) {
 	return s.repo.FindAll()
 }
-func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, error) {
+func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, *errs.Apperror) {
 	return s.repo.ById(id)
 }
 
