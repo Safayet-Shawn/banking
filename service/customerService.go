@@ -7,15 +7,22 @@ import (
 
 // primary port[all port are interfaces]
 type CustomerService interface {
-	GetAllCustomer() ([]domain.Customer, *errs.Apperror)
+	GetAllCustomer(string) ([]domain.Customer, *errs.Apperror)
 	GetCustomer(string) (*domain.Customer, *errs.Apperror)
 }
 type DefaultCustomerService struct {
 	repo domain.CustomerRepository
 }
 
-func (s DefaultCustomerService) GetAllCustomer() ([]domain.Customer, *errs.Apperror) {
-	return s.repo.FindAll()
+func (s DefaultCustomerService) GetAllCustomer(status string) ([]domain.Customer, *errs.Apperror) {
+	if status == "active" {
+		status = "1"
+	} else if status == "inactive" {
+		status = "0"
+	} else {
+		status = ""
+	}
+	return s.repo.FindAll(status)
 }
 func (s DefaultCustomerService) GetCustomer(id string) (*domain.Customer, *errs.Apperror) {
 	return s.repo.ById(id)

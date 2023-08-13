@@ -14,13 +14,9 @@ func Start() {
 	// mux := http.NewServeMux()
 	router := mux.NewRouter()
 	//wiring the application
-	// ch := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
 	ch := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryDb())}
-
 	// router.HandleFunc("/greet", greet).Methods(http.MethodGet)
 	router.HandleFunc("/customers", ch.getAllCustomer).Methods(http.MethodGet)
-	router.HandleFunc("/customer/{customer_id:[0-9]+}", ch.getCustomer).Methods(http.MethodGet)
-
 	// router.HandleFunc("/customer/{customer_id:[0-9]+}", getCustomer).Methods(http.MethodGet)
 	// router.HandleFunc("/customer", createCustomer).Methods(http.MethodPost)
 	//starting server

@@ -14,7 +14,8 @@ type CustomerHandler struct {
 }
 
 func (ch *CustomerHandler) getAllCustomer(w http.ResponseWriter, r *http.Request) {
-	customers, _ := ch.service.GetAllCustomer()
+	status := r.URL.Query().Get("status")
+	customers, _ := ch.service.GetAllCustomer(status)
 	if r.Header.Get("content-type") == "application/json" {
 		WriteResponse(w, http.StatusOK, customers)
 	} else {
