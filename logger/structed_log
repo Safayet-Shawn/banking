@@ -1,0 +1,6 @@
+{
+    "level":"info",
+    "ts":1692514324.1421537,
+    "caller":"banking/main.go:10",
+    "msg":"Starting Banking Application......."
+}

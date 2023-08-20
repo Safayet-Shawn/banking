@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Safayet-Shawn/banking/errs"
+	"github.com/Safayet-Shawn/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -30,6 +31,7 @@ func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errs.Apperror
 		if err == sql.ErrNoRows {
 
 			msg := fmt.Sprintf("Error while querying customer table where err is %v", err.Error)
+			logger.Error(msg)
 			return nil, errs.NewErrorNotFound(msg)
 		} else {
 			return nil, errs.NewUnexpectedServerError("Internal server error")
@@ -43,6 +45,7 @@ func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errs.Apperror
 			if err == sql.ErrNoRows {
 
 				msg := fmt.Sprintf("Error while scaning customer table where err is %v", err.Error)
+				logger.Error(msg)
 				return nil, errs.NewErrorNotFound(msg)
 			} else {
 				return nil, errs.NewUnexpectedServerError("Internal server error")
@@ -60,8 +63,11 @@ func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.Apperror) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			meg := fmt.Sprintf("Error while quering customer table where id = %v and err = %v respectively", id, err)
+			logger.Error(meg)
 			return nil, errs.NewErrorNotFound(meg)
 		} else {
+			logger.Error("Internal server error")
+
 			return nil, errs.NewUnexpectedServerError("Internal server error")
 		}
 	}
