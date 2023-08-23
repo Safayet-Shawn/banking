@@ -3,80 +3,51 @@ package domain
 import (
 	"fmt"
 
-	"database/sql"
 	"time"
 
 	"github.com/Safayet-Shawn/banking/errs"
 	"github.com/Safayet-Shawn/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/jmoiron/sqlx"
 )
 
 type CustomerRepositoryDb struct {
-	client *sql.DB
+	client *sqlx.DB
 }
 
 // receiver func
 func (d CustomerRepositoryDb) FindAll(status string) ([]Customer, *errs.Apperror) {
-	var rows *sql.Rows
+	customers := make([]Customer, 0)
 	var err error
 	if status == "" {
 		findAllsql := "SELECT customer_id,name,date_of_birth,city,zipcode,status FROM customers"
-		rows, err = d.client.Query(findAllsql)
+		err = d.client.Select(&customers, findAllsql)
 	} else {
-		findAllsql := "SELECT customer_id,name,date_of_birth,city,zipcode,status FROM customers WHERE status=?"
-		rows, err = d.client.Query(findAllsql, status)
+		findAllsql := "SELECT customer_id,name,date_of_birth,city,zipcode,status FROM customers WHERE status= ?"
+		err = d.client.Select(&customers, findAllsql, status)
 	}
-
 	if err != nil {
-		if err == sql.ErrNoRows {
-
-			msg := fmt.Sprintf("Error while querying customer table where err is %v", err.Error)
-			logger.Error(msg)
-			return nil, errs.NewErrorNotFound(msg)
-		} else {
-			return nil, errs.NewUnexpectedServerError("Internal server error")
-		}
-	}
-	customers := make([]Customer, 0)
-	for rows.Next() {
-		var c Customer
-		err := rows.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
-		if err != nil {
-			if err == sql.ErrNoRows {
-
-				msg := fmt.Sprintf("Error while scaning customer table where err is %v", err.Error)
-				logger.Error(msg)
-				return nil, errs.NewErrorNotFound(msg)
-			} else {
-				return nil, errs.NewUnexpectedServerError("Internal server error")
-			}
-		}
-		customers = append(customers, c)
+		msg := fmt.Sprintf("Error while querying customer table where err is %v", err)
+		logger.Error(msg)
+		return nil, errs.NewUnexpectedServerError("Error from database")
 	}
 	return customers, nil
 }
 func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.Apperror) {
-	FindCustomer := "SELECT customer_id,name,date_of_birth,city,zipcode,status FROM customers WHERE customer_id =?"
-	row := d.client.QueryRow(FindCustomer, id)
 	var c Customer
-	err := row.Scan(&c.Id, &c.Name, &c.City, &c.Zipcode, &c.DateOfBirth, &c.Status)
+	FindCustomer := "SELECT customer_id,name,date_of_birth,city,zipcode,status FROM customers WHERE customer_id =?"
+	err := d.client.Get(&c, FindCustomer, id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			meg := fmt.Sprintf("Error while quering customer table where id = %v and err = %v respectively", id, err)
-			logger.Error(meg)
-			return nil, errs.NewErrorNotFound(meg)
-		} else {
-			logger.Error("Internal server error")
-
-			return nil, errs.NewUnexpectedServerError("Internal server error")
-		}
+		meg := fmt.Sprintf("Error while quering customer table where id = %v and err = %v respectively", id, err)
+		logger.Error(meg)
+		return nil, errs.NewUnexpectedServerError(meg)
 	}
 	return &c, nil
 }
 
 // all new is helper function
 func NewCustomerRepositoryDb() CustomerRepositoryDb {
-	client, err := sql.Open("mysql", "root:itsshawn@007@@tcp(localhost:3306)/banking")
+	client, err := sqlx.Open("mysql", "root:itsshawn@007@@tcp(localhost:3306)/banking")
 	if err != nil {
 		panic(err)
 	}
