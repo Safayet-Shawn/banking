@@ -3,8 +3,6 @@ package domain
 import (
 	"fmt"
 
-	"time"
-
 	"github.com/Safayet-Shawn/banking/errs"
 	"github.com/Safayet-Shawn/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
@@ -46,14 +44,6 @@ func (d CustomerRepositoryDb) ById(id string) (*Customer, *errs.Apperror) {
 }
 
 // all new is helper function
-func NewCustomerRepositoryDb() CustomerRepositoryDb {
-	client, err := sqlx.Open("mysql", "root:itsshawn@007@@tcp(localhost:3306)/banking")
-	if err != nil {
-		panic(err)
-	}
-	// See "Important settings" section.
-	client.SetConnMaxLifetime(time.Minute * 3)
-	client.SetMaxOpenConns(10)
-	client.SetMaxIdleConns(10)
-	return CustomerRepositoryDb{client}
+func NewCustomerRepositoryDb(dbClient *sqlx.DB) CustomerRepositoryDb {
+	return CustomerRepositoryDb{dbClient}
 }
