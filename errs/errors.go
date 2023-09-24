@@ -22,3 +22,9 @@ func NewUnexpectedServerError(meg string) *Apperror {
 		Code:    501,
 	}
 }
+func NewValidationError(meg string) *Apperror {
+	return &Apperror{
+		Message: meg,
+		Code:    422,
+	}
+}

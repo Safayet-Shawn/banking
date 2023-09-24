@@ -37,6 +37,7 @@ func Start() {
 	// router.HandleFunc("/greet", greet).Methods(http.MethodGet)
 	router.HandleFunc("/customers", ch.getAllCustomer).Methods(http.MethodGet)
 	router.HandleFunc("/customer/{customer_id:[0-9]+}", ch.getCustomer).Methods(http.MethodGet)
+	router.HandleFunc("/customer/{customer_id:[0-9]+}", ah.NewAcount).Methods(http.MethodPost)
 	// router.HandleFunc("/customer", createCustomer).Methods(http.MethodPost)
 	//starting server
 	Host := os.Getenv("Server_Add")
