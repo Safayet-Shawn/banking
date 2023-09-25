@@ -30,6 +30,17 @@ func (d AccountRepositoryDb) Save(a Account) (*Account, *errs.Apperror) {
 	a.AccountId = strconv.FormatInt(id, 10)
 	return &a, nil
 }
+func (d AccountRepositoryDb) FindBy(accountId string) (*Account, *errs.Apperror) {
+	var a Account
+	FindAccount := "SELECT * from account WHERE account_id=?"
+	err := d.client.Get(&a, FindAccount, accountId)
+	if err != nil {
+		msg := fmt.Sprintf("Failed to find account info where account id is %v", accountId)
+		logger.Error(msg)
+		return nil, errs.NewUnexpectedServerError(msg)
+	}
+	return &a, nil
+}
 func NewAccountRepositoryDb(dbClient *sqlx.DB) AccountRepository {
 	return AccountRepositoryDb{dbClient}
 }
