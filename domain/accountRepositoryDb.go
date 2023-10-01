@@ -41,6 +41,47 @@ func (d AccountRepositoryDb) FindBy(accountId string) (*Account, *errs.Apperror)
 	}
 	return &a, nil
 }
+func (d AccountRepositoryDb) SaveTransaction(t Transaction) (*Transaction, *errs.Apperror) {
+	tx, err := d.client.Begin()
+	if err != nil {
+		msg := fmt.Sprintf("Failed to begin transaction")
+		logger.Error(msg)
+		return nil, errs.NewUnexpectedServerError(msg)
+	}
+	result, _ := tx.Exec(`INSERT INTO tansactions(account_id,amount,transaction_type,transaction_date) values(?,?,?,?)`, t.AccountId, t.Amount, t.TransactionType, t.TransactionDate)
+	if t.IsWithwrals() {
+		_, err = tx.Exec(`UPDATE accounts SET amount=amount-? WHERE account_id=?`, t.Amount, t.AccountId)
+	} else {
+		_, err = tx.Exec(`UPDATE accounts SET amount=amount+? WHERE account_id=?`, t.Amount, t.AccountId)
+	}
+	if err != nil {
+		tx.Rollback()
+		msg := fmt.Sprintf("Error while saving  transaction")
+		logger.Error(msg)
+		return nil, errs.NewErrorNotFound(msg)
+	}
+	err = tx.Commit()
+	if err != nil {
+		tx.Rollback()
+		msg := fmt.Sprintf("Error while committing transaction for bank account")
+		logger.Error(msg)
+		return nil, errs.NewErrorNotFound(msg)
+	}
+	transaction_id, err := result.LastInsertId()
+	if err != nil {
+		msg := fmt.Sprintf("Error while getting last inserted id")
+		logger.Error(msg)
+		return nil, errs.NewErrorNotFound(msg)
+	}
+	account, Apperror := d.FindBy(t.AccountId)
+	if Apperror != nil {
+		return nil, Apperror
+	}
+	t.TransactionId = strconv.FormatInt(transaction_id, 10)
+	t.Amount = account.Amount
+	return &t, nil
+
+}
 func NewAccountRepositoryDb(dbClient *sqlx.DB) AccountRepository {
 	return AccountRepositoryDb{dbClient}
 }

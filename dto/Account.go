@@ -20,3 +20,7 @@ func (r NewAccountRequest) Validate() *errs.Apperror {
 	}
 	return nil
 }
+
+type NewAccountResponse struct {
+	AccountId string `json:"account_id"`
+}

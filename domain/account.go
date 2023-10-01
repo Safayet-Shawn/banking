@@ -15,8 +15,16 @@ type Account struct {
 }
 type AccountRepository interface {
 	Save(Account) (*Account, *errs.Apperror)
+	FindBy(string) (*Account, *errs.Apperror)
+	SaveTransaction(Transaction) (*Transaction, *errs.Apperror)
 }
 
 func (a Account) ToNewAccountResonseDto() dto.NewAccountResponse {
 	return dto.NewAccountResponse{AccountId: a.AccountId}
+}
+func (a Account) CanWithdraw(amount float64) bool {
+	if a.Amount < amount {
+		return false
+	}
+	return true
 }

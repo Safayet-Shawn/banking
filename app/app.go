@@ -33,6 +33,7 @@ func Start() {
 	NewCustomerRepositoryDb := domain.NewCustomerRepositoryDb(dbClient)
 	NewAccountRepositoryDb := domain.NewAccountRepositoryDb(dbClient)
 	ch := CustomerHandler{service.NewCustomerService(NewCustomerRepositoryDb)}
+	// ah := AccountHandler{service.NewAccountService(NewAccountRepositoryDb)}
 	ah := AccountHandler{service.NewAccountService(NewAccountRepositoryDb)}
 	// router.HandleFunc("/greet", greet).Methods(http.MethodGet)
 	router.HandleFunc("/customers", ch.getAllCustomer).Methods(http.MethodGet)
